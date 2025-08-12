@@ -1,0 +1,83 @@
+menu "Done Main Config"    
+
+    choice DONE_BOARDS
+        prompt "Select your development board"
+        default DONE_COFFEE_MAKER_BOARD        
+            
+        config DONE_BOARDS_LILYGO_S3
+            bool "LILYGO-S3 Display board"                  
+
+        config DONE_BOARDS_WROOM
+            bool "Wroom-S3 board"   
+
+        config DONE_COFFEE_MAKER_BOARD
+            bool "Done CoffeeMaker Board" 
+
+        config DONE_WAVESHARE_ESP32C6
+            bool "Waveshare esp32c6"    
+    endchoice  
+
+    choice DONE_MATTER_DEVICE
+        prompt "Select your DONE's Matter device"
+        default DONE_MATTER_DEVICE_COFFEE_MAKER
+            
+        config DONE_MATTER_DEVICE_COFFEE_MAKER
+            bool "Smart Coffee Maker"                  
+
+        config DONE_MATTER_DEVICE_AIRFRYER
+            bool "Smart Air Fryer"    
+
+        config DONE_MATTER_DEVICE_OVEN
+            bool "Smart Oven"
+                    
+        config DONE_MATTER_DEVICE_REFRIGERATOR
+            bool "Smart Refrigerator"          
+    endchoice 
+
+    config DONE_PARTITION_TABLE_CUSTOM
+        bool 
+        depends on PARTITION_TABLE_CUSTOM     
+        default y 
+
+    config DONE_PARTITION_TABLE_CUSTOM_FILENAME           
+        string
+        depends on DONE_BOARDS         
+        default "partitions_s3_8m.csv"  if DONE_BOARDS_WROOM
+        default "partitions_s3_16m.csv" if DONE_BOARDS_LILYGO_S3
+        default "partitions_s3_16m.csv" if DONE_COFFEE_MAKER_BOARD  
+        default "partitions_c6.csv"     if DONE_WAVESHARE_ESP32C6
+                          
+
+    menu "Done Firmware components"
+        config DONE_COMPONENT_SPOTIFY
+            bool "Spotify component"        
+            default y     
+
+        config DONE_COMPONENT_LVGL
+            bool "LVGL component"      
+            depends on DONE_BOARDS_LILYGO_S3 || DONE_COFFEE_MAKER_BOARD
+            default y         
+
+        config DONE_COMPONENT_MATTER
+            bool "Matter component"        
+            default y        
+
+        config DONE_LOG
+            bool "Log Utility"        
+            default y  
+
+        config DONE_LOG_PRINT
+            bool "Print Log"        
+            depends on DONE_LOG
+            default n  
+
+        config DONE_COMPONENT_MQTT
+            bool "MQTT component"        
+            default y   
+
+        config DONE_COMPONENT_MQTT_DEFAULT
+            bool "MQTTS defalut settup"        
+            depends on DONE_COMPONENT_MQTT
+            default y                              
+    endmenu                 
+endmenu
