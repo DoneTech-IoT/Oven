@@ -1,11 +1,6 @@
 dependencies:
   espressif/esp_jpeg: "^1.0.5~2"
 
-  lvgl/lvgl:
-    version: "^8.3.11"
-    rules:
-      - if: "target in [esp32s3]"
-
   espressif/cmake_utilities:
     version: 0.*
     rules:
