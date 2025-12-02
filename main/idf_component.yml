@@ -6,3 +6,9 @@ dependencies:
     rules:
       - if: "idf_version >=5.0"
       - if: "target in [esp32c2]"
+
+  #Add project BSP repo. address hear.
+  donetech/coffeemaker:
+    git: "git@github.com:DoneTech-IoT/Done-ESP32-components.git"
+    path: "bsp/CoffeeMaker"
+    version: "*"
