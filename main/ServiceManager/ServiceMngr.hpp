@@ -1,7 +1,7 @@
 #pragma once 
 #include "sdkconfig.h"
 #include <memory>
-#ifdef CONFIG_DONE_COMPONENT_LVGL
+#ifdef CONFIG_DONE_COMPONENT_UI2
 #include "UICoffeeMaker.hpp"
 #endif
 #ifdef CONFIG_DONE_COMPONENT_MATTER
@@ -49,7 +49,7 @@ public:
     {
         0 ,             //NO_ID
         20  * 1024,     //Service Manager
-        100 * 1024,     //UI
+        50  * 1024,     //UI
         50  * 1024,     //MATTER
         20  * 1024,     //MQTT
         0               //LOG
@@ -63,7 +63,7 @@ public:
 
 private:    
     static TaskHandle_t SrvMngHandle;
-#ifdef CONFIG_DONE_COMPONENT_LVGL
+#ifdef CONFIG_DONE_COMPONENT_UI2
     static TaskHandle_t LVGLHandle;
     static std::shared_ptr<UICoffeeMaker>uiCoffeeMaker;
 #endif  
