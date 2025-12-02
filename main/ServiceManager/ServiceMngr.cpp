@@ -10,7 +10,7 @@
 static const char* TAG = "ServiceMngr";
 TaskHandle_t ServiceMngr::SrvMngHandle = nullptr;
 ServiceMngr::ServiceParams_t ServiceMngr::mServiceParams[SharedBus::ServiceID::MAX_ID];
-#ifdef CONFIG_DONE_COMPONENT_LVGL
+#ifdef CONFIG_DONE_COMPONENT_UI2
 TaskHandle_t ServiceMngr::LVGLHandle = nullptr;
 std::shared_ptr<UICoffeeMaker> ServiceMngr::uiCoffeeMaker;
 #endif  
@@ -75,7 +75,7 @@ esp_err_t ServiceMngr::OnMachineStateStart()
 {
     esp_err_t err = ESP_OK;
     
-#ifdef CONFIG_DONE_COMPONENT_LVGL
+#ifdef CONFIG_DONE_COMPONENT_UI2
     uiCoffeeMaker = Singleton<UICoffeeMaker, const char*, SharedBus::ServiceID>::
                         GetInstance(static_cast<const char*>
                         (mServiceName[SharedBus::ServiceID::UI]),
@@ -95,8 +95,15 @@ esp_err_t ServiceMngr::OnMachineStateStart()
     {
         ESP_LOGE(TAG,"failed to create %s service",
             mServiceName[SharedBus::ServiceID::UI]);
-    }    
-#endif //CONFIG_DONE_COMPONENT_LVGL
+    }
+    
+    // Give LVGL time to initialize display and interrupt handlers
+    // before Matter starts WiFi (which also uses interrupts)
+    // This prevents interrupt watchdog timeout when both services run together
+    #ifdef CONFIG_DONE_COMPONENT_MATTER
+    vTaskDelay(pdMS_TO_TICKS(500)); // 500ms delay to allow LVGL to stabilize
+    #endif
+#endif //CONFIG_DONE_COMPONENT_UI2
 
 #ifdef CONFIG_DONE_COMPONENT_MATTER 
     matterOven = Singleton<MatterOven, const char*, SharedBus::ServiceID>::
