@@ -95,14 +95,7 @@ esp_err_t ServiceMngr::OnMachineStateStart()
     {
         ESP_LOGE(TAG,"failed to create %s service",
             mServiceName[SharedBus::ServiceID::UI]);
-    }
-    
-    // Give LVGL time to initialize display and interrupt handlers
-    // before Matter starts WiFi (which also uses interrupts)
-    // This prevents interrupt watchdog timeout when both services run together
-    #ifdef CONFIG_DONE_COMPONENT_MATTER
-    vTaskDelay(pdMS_TO_TICKS(500)); // 500ms delay to allow LVGL to stabilize
-    #endif
+    }        
 #endif //CONFIG_DONE_COMPONENT_UI2
 
 #ifdef CONFIG_DONE_COMPONENT_MATTER 
