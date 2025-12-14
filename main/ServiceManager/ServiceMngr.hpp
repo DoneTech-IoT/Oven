@@ -1,105 +1,62 @@
-#pragma once 
+#pragma once
+/**
+ * @file ServiceMngr.hpp
+ * @brief Service Manager Header - Selects between Generalized and Legacy implementations
+ * 
+ * This header provides a unified interface for ServiceMngr, allowing selection
+ * between the generalized (factory-based) and legacy (hardcoded) implementations
+ * via configuration macro.
+ * 
+ * @def USE_GENERALIZED_SERVICE_MANAGER
+ * @brief Macro to select ServiceMngr implementation
+ * 
+ * - If defined (or default): Uses ServiceMngr_Generalized (factory pattern, reusable)
+ * - If undefined: Uses ServiceMngr_Legacy (hardcoded device classes)
+ * 
+ * @note The generalized version requires ServiceRegistration.cpp to be implemented
+ *       in your project to register device-specific services.
+ * 
+ * @note The legacy version requires device-specific headers to be included
+ *       and hardcodes device classes (UICoffeeMaker, MatterOven, MQTTOven).
+ * 
+ * Usage:
+ * @code
+ * // Use generalized version (default, recommended)
+ * #include "ServiceMngr.hpp"
+ * 
+ * // Or explicitly use generalized
+ * #define USE_GENERALIZED_SERVICE_MANAGER
+ * #include "ServiceMngr.hpp"
+ * 
+ * // Use legacy version
+ * #undef USE_GENERALIZED_SERVICE_MANAGER
+ * #include "ServiceMngr.hpp"
+ * @endcode
+ */
+
 #include "sdkconfig.h"
-#include <memory>
-#ifdef CONFIG_DONE_COMPONENT_UI2
-#include "UICoffeeMaker.hpp"
+
+// Default to generalized version if not explicitly set
+#ifndef USE_GENERALIZED_SERVICE_MANAGER
+    #ifdef CONFIG_USE_GENERALIZED_SERVICE_MANAGER
+        #define USE_GENERALIZED_SERVICE_MANAGER
+    #else
+        // Default to generalized for new projects
+        #define USE_GENERALIZED_SERVICE_MANAGER
+    #endif
 #endif
-#ifdef CONFIG_DONE_COMPONENT_MATTER
-#include "MatterOven.hpp"
+
+// Select implementation based on macro
+#ifdef USE_GENERALIZED_SERVICE_MANAGER
+    // Use generalized version (factory pattern, reusable)
+    #include "ServiceMngr_Generalized.hpp"
+    #ifndef SERVICE_MANAGER_IMPL
+        #define SERVICE_MANAGER_IMPL "Generalized"
+    #endif
 #else
-#include "esp_netif.h"
-#include "protocol_examples_common.h"
+    // Use legacy version (hardcoded device classes)
+    #include "ServiceMngr_Legacy.hpp"
+    #ifndef SERVICE_MANAGER_IMPL
+        #define SERVICE_MANAGER_IMPL "Legacy"
+    #endif
 #endif
-#ifdef CONFIG_DONE_LOG
-#include "Custom_Log.h"
-#endif
-#ifdef CONFIG_DONE_COMPONENT_MQTT
-#include "MQTT_Oven.hpp"
-#endif
-
-#include <stdint.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/timers.h"
-#include "esp_freertos_hooks.h"
-#include "freertos/semphr.h"
-
-#include <esp_event.h>
-#include "esp_log.h"
-#include "esp_system.h"
-#include <sys/param.h>
-
-#include "ServiceBase.hpp"
-#include "SharedBus.hpp"
-
-class ServiceMngr : public ServiceBase
-{
-public:
-    static constexpr char* mServiceName[SharedBus::ServiceID::MAX_ID] =
-    {
-        "",             //NO_ID
-        "SRV_MNGR",     //Service Manager
-        "UI",
-        "MATTER",
-        "MQTT",
-        "LOG",      
-    };    
-
-    static constexpr uint32_t mServiceStackSize[SharedBus::ServiceID::MAX_ID] =
-    {
-        0 ,             //NO_ID
-        20  * 1024,     //Service Manager
-        50  * 1024,     //UI
-        50  * 1024,     //MATTER
-        20  * 1024,     //MQTT
-        0               //LOG
-    };
-    
-    explicit ServiceMngr(
-        const char *TaskName,
-        const SharedBus::ServiceID &ServiceID);
-
-    ~ServiceMngr();
-
-private:    
-    static TaskHandle_t SrvMngHandle;
-#ifdef CONFIG_DONE_COMPONENT_UI2
-    static TaskHandle_t LVGLHandle;
-    static std::shared_ptr<UICoffeeMaker>uiCoffeeMaker;
-#endif  
-#ifdef CONFIG_DONE_COMPONENT_MATTER
-    static TaskHandle_t MatterHandle;
-    static std::shared_ptr<MatterOven>matterOven;
-#endif
-#ifdef CONFIG_DONE_COMPONENT_MQTT
-    static TaskHandle_t MQTTHandle;
-    static std::shared_ptr<MQTTOven>mqttOvenApp;
-#endif
-    
-    typedef void (*TaskKillerPtr)(void);
-    typedef esp_err_t (*TaskInitPtr)(
-                            TaskHandle_t *taskHandler,
-                            UBaseType_t taskPriority,
-                            uint32_t taskStackSize);
-    typedef struct
-    {                   
-        SharedBus::ServiceID id;  
-        TaskHandle_t taskHandler; 
-        TaskInitPtr taskInit;  
-        TaskKillerPtr taskKiller;      
-        UBaseType_t priority;
-        uint32_t taskStackSize;        
-    } ServiceParams_t;
-
-    static ServiceParams_t mServiceParams[SharedBus::ServiceID::MAX_ID];    
-
-    /**
-     * @brief Handles the transition to the machine's start state.
-     * This function is called when the state machine enters the start state. 
-     * It is responsible for initializing necessary components, starting tasks, 
-     * or performing any setup required for this state. 
-     * @return ESP_OK on successful execution.
-     * @return Appropriate error code if the state transition fails.
-     */
-    esp_err_t OnMachineStateStart() override;             
-};
