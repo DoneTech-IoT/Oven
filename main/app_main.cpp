@@ -6,7 +6,7 @@
 #include "esp_system.h"
 #include "esp_log.h"
 
-#include "ServiceMngr.hpp"
+#include "ServiceMngr.hpp"  // Automatically selects Generalized or Legacy based on macro
 #include "Singleton.hpp"
 #include "BSP.h"
 
