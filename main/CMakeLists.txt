@@ -1,7 +1,10 @@
 file(GLOB SOURCES)
 file(GLOB INCLUDES)
 
+# Collect all .cpp files but exclude example files
 file(GLOB_RECURSE CPP_SOURCES "*.cpp")
+# Remove example files from compilation (they're just templates)
+list(FILTER CPP_SOURCES EXCLUDE REGEX ".*_Example\\.cpp$")
 list(APPEND SOURCES ${CPP_SOURCES})
 list(APPEND INCLUDES "." "ServiceManager")
                                       
