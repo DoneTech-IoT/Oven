@@ -10,6 +10,9 @@
 #include "Singleton.hpp"
 #include "BSP.h"
 
+// Forward declaration - ensure services are registered before ServiceMngr is created
+extern void RegisterProjectServices();
+
 static TaskHandle_t SrvMngHandle;
 static std::shared_ptr<ServiceMngr> serviceMngr;
 
@@ -28,6 +31,12 @@ static const char *TAG = "Main";
  */
 extern "C" void app_main()
 {        
+    // Ensure services are registered before creating ServiceMngr
+    // Note: __attribute__((constructor)) may not execute reliably in ESP-IDF/Xtensa GCC,
+    // so this manual call ensures registration happens. Registration is idempotent,
+    // so it's safe to call even if constructor already executed.
+    RegisterProjectServices();
+    
     Log_RamOccupy("main", "service manager");        
     serviceMngr = Singleton<ServiceMngr, const char*, SharedBus::ServiceID>::
                     GetInstance(static_cast<const char*>
