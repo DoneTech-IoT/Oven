@@ -57,42 +57,31 @@ ServiceMngr::~ServiceMngr()
 
 esp_err_t ServiceMngr::OnMachineStateStart()
 {
-    esp_err_t err = ESP_OK;
-    
-    // Initialize all registered services
-    // Services are registered in ServiceRegistration.cpp (project-specific)
-    
-    // UI Service
-    if (ServiceFactoryRegistry::IsServiceRegistered(SharedBus::ServiceID::UI)) {
-        err = InitializeService(SharedBus::ServiceID::UI);
-        if (err != ESP_OK) {
-            ESP_LOGE(TAG, "Failed to initialize UI service");
+    esp_err_t firstError = ESP_OK;
+
+    // Iterate over ServiceID enum values (skip NO_ID and LOG)
+    for (int id = static_cast<int>(SharedBus::ServiceID::UI);
+         id < static_cast<int>(SharedBus::ServiceID::MAX_ID);
+         ++id) {
+        auto serviceID = static_cast<SharedBus::ServiceID>(id);
+        if (serviceID == SharedBus::ServiceID::LOG) {
+            continue;
         }
-    } else {
-        ESP_LOGI(TAG, "UI service not registered, skipping");
+
+        if (ServiceFactoryRegistry::IsServiceRegistered(serviceID)) {
+            auto initErr = InitializeService(serviceID);
+            if (initErr != ESP_OK) {
+                ESP_LOGE(TAG, "Failed to initialize %s service", mServiceName[serviceID]);
+                if (firstError == ESP_OK) {
+                    firstError = initErr; // preserve first failure
+                }
+            }
+        } else {
+            ESP_LOGI(TAG, "%s service not registered, skipping", mServiceName[serviceID]);
+        }
     }
 
-    // Matter Service
-    if (ServiceFactoryRegistry::IsServiceRegistered(SharedBus::ServiceID::MATTER)) {
-        err = InitializeService(SharedBus::ServiceID::MATTER);
-        if (err != ESP_OK) {
-            ESP_LOGE(TAG, "Failed to initialize Matter service");
-        }
-    } else {
-        ESP_LOGI(TAG, "Matter service not registered, skipping");
-    }
-
-    // MQTT Service
-    if (ServiceFactoryRegistry::IsServiceRegistered(SharedBus::ServiceID::MQTT)) {
-        err = InitializeService(SharedBus::ServiceID::MQTT);
-        if (err != ESP_OK) {
-            ESP_LOGE(TAG, "Failed to initialize MQTT service");
-        }
-    } else {
-        ESP_LOGI(TAG, "MQTT service not registered, skipping");
-    }
-
-    return err;
+    return firstError;
 }
 
 esp_err_t ServiceMngr::InitializeService(SharedBus::ServiceID serviceID)
