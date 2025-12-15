@@ -5,13 +5,11 @@
  * 
  * This header provides a unified interface for ServiceMngr, allowing selection
  * between the generalized (factory-based) and legacy (hardcoded) implementations
- * via configuration macro.
+ * via Kconfig option.
  * 
- * @def USE_GENERALIZED_SERVICE_MANAGER
- * @brief Macro to select ServiceMngr implementation
- * 
- * - If defined (or default): Uses ServiceMngr_Generalized (factory pattern, reusable)
- * - If undefined: Uses ServiceMngr_Legacy (hardcoded device classes)
+ * @note Selection is controlled by CONFIG_USE_GENERALIZED_SERVICE_MANAGER in menuconfig:
+ *       - Enabled (default): Uses ServiceMngr_Generalized (factory pattern, reusable)
+ *       - Disabled: Uses ServiceMngr_Legacy (hardcoded device classes)
  * 
  * @note The generalized version requires ServiceRegistration.cpp to be implemented
  *       in your project to register device-specific services.
@@ -21,33 +19,18 @@
  * 
  * Usage:
  * @code
- * // Use generalized version (default, recommended)
- * #include "ServiceMngr.hpp"
+ * // Configure via menuconfig:
+ * // idf.py menuconfig -> Done Main Config -> Done Firmware components
+ * // -> Use Generalized Service Manager (Factory Pattern)
  * 
- * // Or explicitly use generalized
- * #define USE_GENERALIZED_SERVICE_MANAGER
- * #include "ServiceMngr.hpp"
- * 
- * // Use legacy version
- * #undef USE_GENERALIZED_SERVICE_MANAGER
- * #include "ServiceMngr.hpp"
+ * #include "ServiceMngr.hpp"  // Automatically uses selected implementation
  * @endcode
  */
 
 #include "sdkconfig.h"
 
-// Default to generalized version if not explicitly set
-#ifndef USE_GENERALIZED_SERVICE_MANAGER
-    #ifdef CONFIG_USE_GENERALIZED_SERVICE_MANAGER
-        #define USE_GENERALIZED_SERVICE_MANAGER
-    #else
-        // Default to generalized for new projects
-        #define USE_GENERALIZED_SERVICE_MANAGER
-    #endif
-#endif
-
-// Select implementation based on macro
-#ifdef USE_GENERALIZED_SERVICE_MANAGER
+// Select implementation based on Kconfig option
+#ifdef CONFIG_USE_GENERALIZED_SERVICE_MANAGER
     // Use generalized version (factory pattern, reusable)
     #include "ServiceMngr_Generalized.hpp"
     #ifndef SERVICE_MANAGER_IMPL
