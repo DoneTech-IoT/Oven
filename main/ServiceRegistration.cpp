@@ -59,17 +59,17 @@ void RegisterProjectServices()
 #ifdef CONFIG_DONE_COMPONENT_UI2
     // Register UI Service for Oven
     // Note: Check if UICoffeeMaker is actually used for Oven or if there's UIOven
-    REGISTER_UI_SERVICE(UICoffeeMaker);
+    REGISTER_SERVICE(SharedBus::ServiceID::UI, UICoffeeMaker);
 #endif
 
 #ifdef CONFIG_DONE_COMPONENT_MATTER
     // Register Matter Service for Oven
-    REGISTER_MATTER_SERVICE(MatterOven);
+    REGISTER_SERVICE(SharedBus::ServiceID::MATTER, MatterOven);
 #endif
 
 #ifdef CONFIG_DONE_COMPONENT_MQTT
     // Register MQTT Service for Oven
-    REGISTER_MQTT_SERVICE(MQTTOven);
+    REGISTER_SERVICE(SharedBus::ServiceID::MQTT, MQTTOven);
 #endif
 
     ESP_LOGI(TAG, "Service registration complete");
