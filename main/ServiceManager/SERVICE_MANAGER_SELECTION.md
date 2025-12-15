@@ -7,32 +7,12 @@ The `ServiceMngr.hpp` header provides a unified interface that allows you to sel
 1. **ServiceMngr_Generalized** (Recommended) - Factory pattern, reusable
 2. **ServiceMngr_Legacy** - Hardcoded device classes, project-specific
 
-## Selection Methods
+## Selection Method: Kconfig (menuconfig)
 
-### Method 1: Macro Definition (Code Level)
-
-#### Use Generalized Version (Default)
-```cpp
-// Default behavior - uses generalized
-#include "ServiceMngr.hpp"
-
-// Or explicitly
-#define USE_GENERALIZED_SERVICE_MANAGER
-#include "ServiceMngr.hpp"
-```
-
-#### Use Legacy Version
-```cpp
-#undef USE_GENERALIZED_SERVICE_MANAGER
-#include "ServiceMngr.hpp"
-```
-
-### Method 2: Kconfig (menuconfig)
-
-Add to your `main/Kconfig`:
+The selection is controlled via Kconfig option `CONFIG_USE_GENERALIZED_SERVICE_MANAGER` in `main/Kconfig`:
 
 ```kconfig
-menu "Service Manager Configuration"
+menu "Done Firmware components"
     config USE_GENERALIZED_SERVICE_MANAGER
         bool "Use Generalized Service Manager (Factory Pattern)"
         default y
@@ -40,28 +20,35 @@ menu "Service Manager Configuration"
             Enable the generalized ServiceManager that uses factory pattern.
             This version is reusable across projects and requires ServiceRegistration.cpp.
             
-            If disabled, uses the legacy hardcoded version.
+            If disabled, uses the legacy hardcoded version (ServiceMngr_Legacy).
+            Legacy version requires device-specific headers and hardcodes device classes.
 endmenu
 ```
 
-Then in `ServiceMngr.hpp`, it will automatically use the config:
+### How to Select
+
+1. **Use Generalized (Recommended)**:
+   ```bash
+   idf.py menuconfig
+   # Navigate to: Done Main Config -> Done Firmware components
+   # Enable: "Use Generalized Service Manager (Factory Pattern)"
+   ```
+
+2. **Use Legacy**:
+   ```bash
+   idf.py menuconfig
+   # Navigate to: Done Main Config -> Done Firmware components
+   # Disable: "Use Generalized Service Manager (Factory Pattern)"
+   ```
+
+The `ServiceMngr.hpp` header automatically uses the Kconfig setting:
 
 ```cpp
 #ifdef CONFIG_USE_GENERALIZED_SERVICE_MANAGER
-    #define USE_GENERALIZED_SERVICE_MANAGER
+    #include "ServiceMngr_Generalized.hpp"
+#else
+    #include "ServiceMngr_Legacy.hpp"
 #endif
-```
-
-### Method 3: Compiler Flag (CMakeLists.txt)
-
-In `main/CMakeLists.txt`:
-
-```cmake
-# Use generalized version
-target_compile_definitions(${COMPONENT_LIB} PRIVATE USE_GENERALIZED_SERVICE_MANAGER)
-
-# Or use legacy
-# target_compile_definitions(${COMPONENT_LIB} PRIVATE -DUSE_LEGACY_SERVICE_MANAGER)
 ```
 
 ## Implementation Comparison
@@ -96,7 +83,7 @@ extern "C" void app_main()
 
 ```cpp
 // app_main.cpp
-#undef USE_GENERALIZED_SERVICE_MANAGER
+// Disable CONFIG_USE_GENERALIZED_SERVICE_MANAGER in menuconfig first
 #include "ServiceMngr.hpp"  // Uses legacy
 
 extern "C" void app_main()
@@ -114,23 +101,30 @@ extern "C" void app_main()
 
 1. **Keep both versions** (already done)
 2. **Create ServiceRegistration.cpp** with your device registrations
-3. **Switch include**:
+3. **Enable Kconfig option** (default is enabled):
+   ```bash
+   idf.py menuconfig
+   # Navigate to: Done Main Config -> Done Firmware components
+   # Enable: "Use Generalized Service Manager (Factory Pattern)"
+   ```
+4. **Switch include**:
    ```cpp
    // Old
    #include "ServiceMngr_Legacy.hpp"
    
    // New
-   #include "ServiceMngr.hpp"  // Uses generalized by default
+   #include "ServiceMngr.hpp"  // Uses generalized (via Kconfig)
    ```
-4. **Test and verify**
-5. **Remove legacy version** (optional, after verification)
+5. **Test and verify**
+6. **Remove legacy version** (optional, after verification)
 
 ### From Generalized to Legacy
 
-1. **Undefine macro**:
-   ```cpp
-   #undef USE_GENERALIZED_SERVICE_MANAGER
-   #include "ServiceMngr.hpp"
+1. **Disable Kconfig option**:
+   ```bash
+   idf.py menuconfig
+   # Navigate to: Done Main Config -> Done Firmware components
+   # Disable: "Use Generalized Service Manager (Factory Pattern)"
    ```
 2. **Ensure device headers** are available
 3. **Test and verify**
@@ -142,7 +136,7 @@ Check which version is being used:
 ```cpp
 #include "ServiceMngr.hpp"
 
-#ifdef USE_GENERALIZED_SERVICE_MANAGER
+#ifdef CONFIG_USE_GENERALIZED_SERVICE_MANAGER
     ESP_LOGI("Main", "Using Generalized ServiceManager");
 #else
     ESP_LOGI("Main", "Using Legacy ServiceManager");
@@ -191,6 +185,9 @@ The `ServiceMngr.hpp` wrapper provides:
 - ✅ **Gradual migration** - Switch when ready
 
 **Default**: Uses Generalized (recommended for new projects)
+
+
+
 
 
 
