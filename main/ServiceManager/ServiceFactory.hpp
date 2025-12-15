@@ -201,99 +201,26 @@ inline std::shared_ptr<ServiceBase> CreateServiceInstance(const char* taskName, 
 }
 
 /**
- * @def REGISTER_UI_SERVICE
- * @brief Convenience macro for registering UI service implementations
+ * @def REGISTER_SERVICE
+ * @brief Generic macro for registering any service implementation
  * 
- * Registers a UI service class with the ServiceFactoryRegistry. This macro should be
- * called in ServiceRegistration.cpp to register the device-specific UI service.
+ * Registers a service class with the ServiceFactoryRegistry for the provided ServiceID.
+ * Use this instead of the per-service macros to select the ID explicitly.
  * 
- * @param ServiceClass The UI service class to register (e.g., UICoffeeMaker, UIOven)
- * 
- * @note The ServiceClass must inherit from ServiceBase (or a service base class)
- * @note Registration happens automatically via __attribute__((constructor)) in ServiceRegistration.cpp
+ * @param ServiceIdEnum SharedBus::ServiceID value (e.g., SharedBus::ServiceID::UI)
+ * @param ServiceClass The service class to register (must inherit from ServiceBase)
  * 
  * @example
  * @code
  * // In ServiceRegistration.cpp
- * #ifdef CONFIG_DONE_COMPONENT_UI2
- * #include "UICoffeeMaker.hpp"
- * REGISTER_UI_SERVICE(UICoffeeMaker);
- * #endif
+ * REGISTER_SERVICE(SharedBus::ServiceID::UI, UICoffeeMaker);
+ * REGISTER_SERVICE(SharedBus::ServiceID::MATTER, MatterOven);
+ * REGISTER_SERVICE(SharedBus::ServiceID::MQTT, MQTTOven);
  * @endcode
- * 
- * @see ServiceRegistration.cpp
- * @see REGISTER_MATTER_SERVICE
- * @see REGISTER_MQTT_SERVICE
  */
-#define REGISTER_UI_SERVICE(ServiceClass) \
+#define REGISTER_SERVICE(ServiceIdEnum, ServiceClass) \
     ServiceFactoryRegistry::RegisterService( \
-        SharedBus::ServiceID::UI, \
-        [](const char* taskName, SharedBus::ServiceID id) -> std::shared_ptr<ServiceBase> { \
-            return CreateServiceInstance<ServiceClass>(taskName, id); \
-        } \
-    )
-
-/**
- * @def REGISTER_MATTER_SERVICE
- * @brief Convenience macro for registering Matter service implementations
- * 
- * Registers a Matter service class with the ServiceFactoryRegistry. This macro should be
- * called in ServiceRegistration.cpp to register the device-specific Matter service.
- * 
- * @param ServiceClass The Matter service class to register (e.g., MatterOven, MatterCoffeeMaker)
- * 
- * @note The ServiceClass must inherit from ServiceBase (or MatterService which inherits from ServiceBase)
- * @note Registration happens automatically via __attribute__((constructor)) in ServiceRegistration.cpp
- * 
- * @example
- * @code
- * // In ServiceRegistration.cpp
- * #ifdef CONFIG_DONE_COMPONENT_MATTER
- * #include "MatterOven.hpp"
- * REGISTER_MATTER_SERVICE(MatterOven);
- * #endif
- * @endcode
- * 
- * @see ServiceRegistration.cpp
- * @see REGISTER_UI_SERVICE
- * @see REGISTER_MQTT_SERVICE
- */
-#define REGISTER_MATTER_SERVICE(ServiceClass) \
-    ServiceFactoryRegistry::RegisterService( \
-        SharedBus::ServiceID::MATTER, \
-        [](const char* taskName, SharedBus::ServiceID id) -> std::shared_ptr<ServiceBase> { \
-            return CreateServiceInstance<ServiceClass>(taskName, id); \
-        } \
-    )
-
-/**
- * @def REGISTER_MQTT_SERVICE
- * @brief Convenience macro for registering MQTT service implementations
- * 
- * Registers an MQTT service class with the ServiceFactoryRegistry. This macro should be
- * called in ServiceRegistration.cpp to register the device-specific MQTT service.
- * 
- * @param ServiceClass The MQTT service class to register (e.g., MQTTOven, MQTTCoffeeMaker)
- * 
- * @note The ServiceClass must inherit from ServiceBase (or MQTTService which inherits from ServiceBase)
- * @note Registration happens automatically via __attribute__((constructor)) in ServiceRegistration.cpp
- * 
- * @example
- * @code
- * // In ServiceRegistration.cpp
- * #ifdef CONFIG_DONE_COMPONENT_MQTT
- * #include "MQTT_Oven.hpp"
- * REGISTER_MQTT_SERVICE(MQTTOven);
- * #endif
- * @endcode
- * 
- * @see ServiceRegistration.cpp
- * @see REGISTER_UI_SERVICE
- * @see REGISTER_MATTER_SERVICE
- */
-#define REGISTER_MQTT_SERVICE(ServiceClass) \
-    ServiceFactoryRegistry::RegisterService( \
-        SharedBus::ServiceID::MQTT, \
+        ServiceIdEnum, \
         [](const char* taskName, SharedBus::ServiceID id) -> std::shared_ptr<ServiceBase> { \
             return CreateServiceInstance<ServiceClass>(taskName, id); \
         } \
