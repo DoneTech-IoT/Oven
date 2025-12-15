@@ -6,12 +6,15 @@
 #include "esp_system.h"
 #include "esp_log.h"
 
-#include "ServiceMngr.hpp"  // Automatically selects Generalized or Legacy based on macro
+#include "ServiceMngr.hpp"  // Automatically selects Generalized or Legacy based on Kconfig
 #include "Singleton.hpp"
 #include "BSP.h"
 
 // Forward declaration - ensure services are registered before ServiceMngr is created
+// Only needed for Generalized ServiceManager
+#ifdef CONFIG_USE_GENERALIZED_SERVICE_MANAGER
 extern void RegisterProjectServices();
+#endif
 
 static TaskHandle_t SrvMngHandle;
 static std::shared_ptr<ServiceMngr> serviceMngr;
@@ -31,11 +34,13 @@ static const char *TAG = "Main";
  */
 extern "C" void app_main()
 {        
+#ifdef CONFIG_USE_GENERALIZED_SERVICE_MANAGER
     // Ensure services are registered before creating ServiceMngr
     // Note: __attribute__((constructor)) may not execute reliably in ESP-IDF/Xtensa GCC,
     // so this manual call ensures registration happens. Registration is idempotent,
     // so it's safe to call even if constructor already executed.
     RegisterProjectServices();
+#endif
     
     Log_RamOccupy("main", "service manager");        
     serviceMngr = Singleton<ServiceMngr, const char*, SharedBus::ServiceID>::
