@@ -36,8 +36,7 @@ ServiceMngr::ServiceMngr(
 
     SpiffsInit();
 
-    SharedBus sharedBus;
-    if(sharedBus.Init() == ESP_OK)
+    if(SharedBus::Init() == ESP_OK)
     {
         ESP_LOGI(TAG, "Initialized SharedBus successfully");
     }
