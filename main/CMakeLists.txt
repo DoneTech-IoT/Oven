@@ -1,7 +1,7 @@
 file(GLOB SOURCES)
 file(GLOB INCLUDES)
 
-# Collect all .cpp files but exclude example files
+# Collect all .cpp files but exclude unselected files
 file(GLOB_RECURSE CPP_SOURCES "*.cpp")
 
 # Only compile the ServiceManager variant selected via Kconfig
