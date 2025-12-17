@@ -26,7 +26,6 @@ const int HeartbeatPattern[] = {
     1000 // Rest time before the next heartbeat
 };
 const int HeartbeatPatternLength = sizeof(HeartbeatPattern) / sizeof(HeartbeatPattern[0]);
-static const char *TAG = "Main";
 
 /**
  * @brief Function to change colors based on a timer callback
