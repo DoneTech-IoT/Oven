@@ -12,7 +12,6 @@ else()
     # Legacy mode: exclude generalized/factory sources
     list(FILTER CPP_SOURCES EXCLUDE REGEX ".*/ServiceManager/ServiceMngr_Generalized\\.cpp$")
     list(FILTER CPP_SOURCES EXCLUDE REGEX ".*/ServiceManager/ServiceFactory\\.cpp$")
-    list(FILTER CPP_SOURCES EXCLUDE REGEX ".*/ServiceRegistration\\.cpp$")
 endif()
 
 list(APPEND SOURCES ${CPP_SOURCES})

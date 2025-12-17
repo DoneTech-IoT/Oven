@@ -10,10 +10,9 @@
 #include "Singleton.hpp"
 #include "BSP.h"
 
-// Forward declaration - ensure services are registered before ServiceMngr is created
-// Only needed for Generalized ServiceManager
+// Service registration - only needed for Generalized ServiceManager
 #ifdef CONFIG_USE_GENERALIZED_SERVICE_MANAGER
-extern void RegisterProjectServices();
+#include "ServiceRegistration.hpp"
 #endif
 
 static TaskHandle_t SrvMngHandle;
@@ -39,7 +38,7 @@ extern "C" void app_main()
     // Note: __attribute__((constructor)) may not execute reliably in ESP-IDF/Xtensa GCC,
     // so this manual call ensures registration happens. Registration is idempotent,
     // so it's safe to call even if constructor already executed.
-    RegisterProjectServices();
+    RegisterServices();
 #endif
     
     Log_RamOccupy("main", "service manager");        

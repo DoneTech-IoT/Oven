@@ -1,5 +1,5 @@
 /**
- * @file ServiceRegistration.cpp
+ * @file ServiceRegistration.hpp
  * @brief Project-specific service registration
  * 
  * This file is project-specific and should be customized for each device.
@@ -7,7 +7,15 @@
  * 
  * ServiceMngr will use these registrations to create service instances
  * without needing to know the specific device types.
+ * 
+ * @note This file is header-only for simplicity. The registration function
+ *       is called automatically via __attribute__((constructor)) or manually
+ *       from app_main() as a fallback.
+ * 
+ * @note Only needed when CONFIG_USE_GENERALIZED_SERVICE_MANAGER is enabled.
  */
+
+#pragma once
 
 #include "ServiceFactory.hpp"
 #include "sdkconfig.h"
@@ -46,7 +54,7 @@ static bool sServicesRegistered = false;
  * @note If both __attribute__((constructor)) and manual call happen, only the
  *       first call will register services (subsequent calls are no-ops).
  */
-void RegisterProjectServices()
+inline void RegisterServices()
 {
     // Prevent duplicate registration
     if (sServicesRegistered) {
@@ -94,5 +102,5 @@ void RegisterProjectServices()
 __attribute__((constructor))
 static void AutoRegisterServices()
 {    
-    RegisterProjectServices(); 
+    RegisterServices(); 
 }
