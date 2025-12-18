@@ -49,6 +49,16 @@ menu "Done Main Config"
                           
 
     menu "Done Firmware components"
+        config USE_GENERALIZED_SERVICE_MANAGER
+            bool "Use Generalized Service Manager (Factory Pattern)"
+            default y
+            help
+                Enable the generalized ServiceManager that uses factory pattern.
+                This version is reusable across projects and requires ServiceRegistration.cpp.
+                
+                If disabled, uses the legacy hardcoded version (ServiceMngr_Legacy).
+                Legacy version requires device-specific headers and hardcodes device classes.
+
         config DONE_COMPONENT_SPOTIFY
             bool "Spotify component"        
             default y     
