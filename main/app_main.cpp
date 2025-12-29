@@ -10,14 +10,9 @@
 #include "Singleton.hpp"
 #include "BSP.h"
 
-// Service registration - only needed for Generalized ServiceManager
-#ifdef CONFIG_USE_GENERALIZED_SERVICE_MANAGER
 #include "ServiceRegistration.hpp"
-#endif
 
-static TaskHandle_t SrvMngHandle;
 static std::shared_ptr<ServiceMngr> serviceMngr;
-
 // Define the heartbeat pattern in milliseconds
 const int HeartbeatPattern[] = {
     200, // First "lub" (on time)
@@ -32,13 +27,11 @@ const int HeartbeatPatternLength = sizeof(HeartbeatPattern) / sizeof(HeartbeatPa
  */
 extern "C" void app_main()
 {        
-#ifdef CONFIG_USE_GENERALIZED_SERVICE_MANAGER
     // Ensure services are registered before creating ServiceMngr
     // Note: __attribute__((constructor)) may not execute reliably in ESP-IDF/Xtensa GCC,
     // so this manual call ensures registration happens. Registration is idempotent,
     // so it's safe to call even if constructor already executed.
     RegisterServices();
-#endif
     
     Log_RamOccupy("main", "service manager");        
     serviceMngr = Singleton<ServiceMngr, const char*, SharedBus::ServiceID>::
