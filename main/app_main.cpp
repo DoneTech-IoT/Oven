@@ -6,9 +6,14 @@
 #include "esp_system.h"
 #include "esp_log.h"
 
-#include "ServiceMngr.hpp"
+#include "ServiceMngr.hpp"  // Automatically selects Generalized or Legacy based on Kconfig
 #include "Singleton.hpp"
 #include "BSP.h"
+
+// Service registration - only needed for Generalized ServiceManager
+#ifdef CONFIG_USE_GENERALIZED_SERVICE_MANAGER
+#include "ServiceRegistration.hpp"
+#endif
 
 static TaskHandle_t SrvMngHandle;
 static std::shared_ptr<ServiceMngr> serviceMngr;
@@ -21,13 +26,20 @@ const int HeartbeatPattern[] = {
     1000 // Rest time before the next heartbeat
 };
 const int HeartbeatPatternLength = sizeof(HeartbeatPattern) / sizeof(HeartbeatPattern[0]);
-static const char *TAG = "Main";
 
 /**
  * @brief Function to change colors based on a timer callback
  */
 extern "C" void app_main()
 {        
+#ifdef CONFIG_USE_GENERALIZED_SERVICE_MANAGER
+    // Ensure services are registered before creating ServiceMngr
+    // Note: __attribute__((constructor)) may not execute reliably in ESP-IDF/Xtensa GCC,
+    // so this manual call ensures registration happens. Registration is idempotent,
+    // so it's safe to call even if constructor already executed.
+    RegisterServices();
+#endif
+    
     Log_RamOccupy("main", "service manager");        
     serviceMngr = Singleton<ServiceMngr, const char*, SharedBus::ServiceID>::
                     GetInstance(static_cast<const char*>

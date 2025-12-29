@@ -2,7 +2,7 @@
 #include <cstring>
 #include "esp_heap_caps.h"
 
-#include "ServiceMngr.hpp"
+#include "ServiceMngr_Legacy.hpp"
 #include "Singleton.hpp"
 #include "SpiffsManager.h"
 #include "SharedBus.hpp"
@@ -36,8 +36,7 @@ ServiceMngr::ServiceMngr(
 
     SpiffsInit();
 
-    SharedBus sharedBus;
-    if(sharedBus.Init() == ESP_OK)
+    if(SharedBus::Init() == ESP_OK)
     {
         ESP_LOGI(TAG, "Initialized SharedBus successfully");
     }
