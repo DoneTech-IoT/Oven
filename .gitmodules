@@ -10,3 +10,6 @@
 [submodule "components/Utilities"]
 	path = components/Utilities
 	url = git@github.com:DoneTech-IoT/Utilities.git
+[submodule "components/PrebuiltLibs"]
+	path = components/PrebuiltLibs
+	url = git@github.com:DoneTech-IoT/PrebuiltLibs.git	
