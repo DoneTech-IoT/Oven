@@ -58,6 +58,12 @@ menu "Done Main Config"
             depends on DONE_BOARDS_LILYGO_S3 || DONE_COFFEE_MAKER_BOARD
             default n        
 
+        config DONE_COMPONENT_UTILITIES
+            bool "Utilities component"
+            default y
+            help
+                Enable Utilities component. Set to 'n' when building pre-built libraries.
+
         config DONE_COMPONENT_UI2
             bool "UI2 component"                  
             default y                     
