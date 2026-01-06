@@ -11,16 +11,16 @@ if(NOT CONFIG_BUILD_PREBUILT_UTILITIES AND
    NOT CONFIG_BUILD_PREBUILT_MATTER AND 
    NOT CONFIG_BUILD_PREBUILT_MQTT AND 
    NOT CONFIG_BUILD_PREBUILT_UI2)
-file(GLOB_RECURSE CPP_SOURCES "*.cpp")
-list(APPEND SOURCES ${CPP_SOURCES})
-                                      
-idf_component_register(
-    SRCS ${SOURCES} 
+    file(GLOB_RECURSE CPP_SOURCES "*.cpp")
+    list(APPEND SOURCES ${CPP_SOURCES})
+                                          
+    idf_component_register(
+        SRCS ${SOURCES} 
         INCLUDE_DIRS ${INCLUDES}
         REQUIRES ${MAIN_REQUIRES})
 
-set_property(TARGET ${COMPONENT_LIB} PROPERTY CXX_STANDARD 17)
-target_compile_options(${COMPONENT_LIB} PRIVATE "-DCHIP_HAVE_CONFIG_H")
+    set_property(TARGET ${COMPONENT_LIB} PROPERTY CXX_STANDARD 17)
+    target_compile_options(${COMPONENT_LIB} PRIVATE "-DCHIP_HAVE_CONFIG_H")
 else()
     # Register empty component when building pre-built libraries
     # Create a dummy source file to ensure a library target is created
