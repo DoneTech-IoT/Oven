@@ -2,8 +2,24 @@ file(GLOB SOURCES)
 file(GLOB INCLUDES)
 
 # Dependencies needed by main headers
-# main includes headers from Utilities, UserInterface2, Matter, and MQTT components
-set(MAIN_REQUIRES Utilities UserInterface2 Matter MQTT)
+# Build MAIN_REQUIRES based on Kconfig component enable flags
+set(MAIN_REQUIRES "")
+
+if(CONFIG_DONE_COMPONENT_UTILITIES)
+    list(APPEND MAIN_REQUIRES Utilities)
+endif()
+
+if(CONFIG_DONE_COMPONENT_UI2)
+    list(APPEND MAIN_REQUIRES UserInterface2)
+endif()
+
+if(CONFIG_DONE_COMPONENT_MATTER)
+    list(APPEND MAIN_REQUIRES Matter)
+endif()
+
+if(CONFIG_DONE_COMPONENT_MQTT)
+    list(APPEND MAIN_REQUIRES MQTT)
+endif()
 
 # Only build main component when NOT building pre-built libraries
 # When building pre-built libraries, main should not be built to avoid component tracking conflicts
