@@ -26,13 +26,7 @@ const int HeartbeatPatternLength = sizeof(HeartbeatPattern) / sizeof(HeartbeatPa
  * @brief Function to change colors based on a timer callback
  */
 extern "C" void app_main()
-{        
-    // Ensure services are registered before creating ServiceMngr
-    // Note: __attribute__((constructor)) may not execute reliably in ESP-IDF/Xtensa GCC,
-    // so this manual call ensures registration happens. Registration is idempotent,
-    // so it's safe to call even if constructor already executed.
-    RegisterServices();
-    
+{            
     Log_RamOccupy("main", "service manager");        
     serviceMngr = Singleton<ServiceMngr, const char*, SharedBus::ServiceID>::
                     GetInstance(static_cast<const char*>

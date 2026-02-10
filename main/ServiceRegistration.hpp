@@ -58,7 +58,7 @@ inline void RegisterServices()
 {
     // Prevent duplicate registration
     if (sServicesRegistered) {
-        ESP_LOGD(TAG, "Services already registered, skipping");
+        ESP_LOGI(TAG, "Services already registered, skipping");
         return;
     }
     
@@ -89,15 +89,16 @@ inline void RegisterServices()
  * 
  * This function attempts to be automatically called by the compiler before app_main()
  * runs, thanks to the __attribute__((constructor)) attribute. However, in ESP-IDF with
- * Xtensa GCC, constructor execution timing is not guaranteed, so a manual call in
- * app_main() is also provided as a fallback.
+ * Xtensa GCC, constructor execution timing can vary depending on startup/linker
+ * configuration.
  * 
  * @note Xtensa GCC supports `__attribute__((constructor))`, but execution timing
- *       relative to app_main() may vary. The manual call in app_main() ensures
- *       reliable registration regardless of constructor behavior.
+ *       relative to app_main() may vary across toolchain/IDF versions and build flags.
+ *       If you ever observe services not registered, you can call `RegisterServices()`
+ *       explicitly from `app_main()` as a fallback.
  * 
  * @note Registration is idempotent - safe to call multiple times (both constructor
- *       and manual call can execute without issues).
+ *       and an optional manual call can execute without issues).
  */
 __attribute__((constructor))
 static void AutoRegisterServices()
